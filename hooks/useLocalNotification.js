@@ -4,7 +4,8 @@
 // When a notification is received, it updates the notification state with the received
 // notification data.
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
 import * as Notifications from "expo-notifications";
 import { registerForPushNotificationsAsync } from "../utils/handle-local-notification";
 
