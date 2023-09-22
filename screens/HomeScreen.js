@@ -1,15 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, FlatList } from "react-native";
-import { schedulePrayerTimeNotifications } from "../utils/handle-local-notification";
+import {
+	getAllNotificationSetupAlready,
+	schedulePrayerTimeNotifications,
+	clearAllNotifications,
+} from "../utils/handle-local-notification";
 import { prayerTimesEnum } from "../data/prayerTimesEnum";
 import { prayerTimes } from "../data/prayerTimes";
 import { prayerTimes365 } from "../data/prayerTimes365";
 import * as Notifications from "expo-notifications";
 import {
+	formatPrayerTimeToAMPM,
 	getTodaysDatePatternLikeMM_DD,
 	getTodaysDatePatternAsString,
-	getNext64PrayerTimes,
-} from "../utils/getNext64PrayerTimes";
+} from "../utils/formatPrayerTime";
+import { getNextXDaysOfPrayerTimes } from "../utils/getPrayerTimes";
 
 // Configure how notifications should be handled when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -20,27 +25,36 @@ Notifications.setNotificationHandler({
 	}),
 });
 
-// Helper function to format prayer time from H, MM, S to HH:MM AM/PM
-function formatPrayerTime(time) {
-	const [hours, minutes] = time.split(",").map(Number);
-	const period = hours < 12 ? "AM" : "PM";
-	const formattedHours = (((hours + 11) % 12) + 1)
-		.toString()
-		.padStart(2, "0");
-	const formattedMinutes = minutes.toString().padStart(2, "0");
-	return `${formattedHours}:${formattedMinutes} ${period}`;
-}
-
 const HomeScreen = () => {
 	useEffect(() => {
-		schedulePrayerTimeNotifications();
-		console.log(Object.entries(prayerTimes));
+		const fetchData = async () => {
+			await clearAllNotifications(); // Wait for clearAllNotifications to finish
+			schedulePrayerTimeNotifications(getNextXDaysOfPrayerTimes(3)); // Call schedulePrayerTimeNotifications after clearAllNotifications is done
+		};
+
+		fetchData();
 	}, []);
+
+	const [scheduledNotifications, setScheduledNotifications] = useState([]);
+
+	const fetchScheduledNotifications = async () => {
+		try {
+			const notifications =
+				await Notifications.getAllScheduledNotificationsAsync();
+			setScheduledNotifications(notifications);
+			console.log("Scheduled Notifications:", notifications);
+		} catch (error) {
+			console.error("Error fetching scheduled notifications:", error);
+		}
+	};
 
 	const todayKey = getTodaysDatePatternLikeMM_DD();
 	const todaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
-		formatPrayerTime
+		formatPrayerTimeToAMPM
 	);
+	console.log("todays prayer time");
+	console.log(getNextXDaysOfPrayerTimes(3));
+
 	return (
 		<View
 			style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
@@ -68,8 +82,8 @@ const HomeScreen = () => {
 				)}
 			/>
 			<Button
-				title="Schedule Prayer Time Notifications"
-				onPress={() => schedulePrayerTimeNotifications()}
+				title="See scheduled Notification Logs"
+				onPress={fetchScheduledNotifications}
 			/>
 		</View>
 	);

@@ -13,67 +13,106 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import React, { useEffect } from "react";
-import { prayerTimes } from "../data/prayerTimes"; // Import your prayer times data
+
+export const getAllNotificationSetupAlready = async () => {
+	console.log(await Notifications.getAllScheduleNotifications());
+};
+
 export const clearAllNotifications = async () => {
 	await Notifications.cancelAllScheduledNotificationsAsync();
+	console.log("== All notifications cleared ==");
 };
 
-export const useClearNotificationsOnOpen = () => {
-	useEffect(() => {
-		// Call the clearAllNotifications function when the component mounts
-		clearAllNotifications();
-		console.log("== All notifications cleared ==");
-	}, []);
-};
+const prayerNames = [
+	"Sehri",
+	"Fajr",
+	"Sunrise",
+	"Zuhr",
+	"Asr",
+	"Magrib",
+	"Isha",
+];
 
-export const schedulePrayerTimeNotifications = async () => {
-	// Iterate over the prayer times and schedule notifications for each
-	for (const prayer in prayerTimes) {
-		const time = prayerTimes[prayer];
-		await Notifications.scheduleNotificationAsync({
-			identifier: prayer,
-			content: {
-				title: `Prayer Time - ${prayer}`,
-				body: `It's time for ${prayer} prayer!`,
-			},
-			trigger: {
-				hour: parseInt(time.split(":")[0], 10),
-				minute: parseInt(time.split(":")[1], 10),
-				repeats: true, // Set to true to repeat the notification daily
-			},
-		});
+export const schedulePrayerTimeNotifications = async (prayerTimes) => {
+	// Get the current year
+	const currentYear = new Date().getFullYear();
+
+	let count = 1;
+	// Iterate over the prayer times for each day
+	for (const date in prayerTimes) {
+		const times = prayerTimes[date];
+		const [month, day] = date.split("_").map(Number);
+
+		if (!isValidDate(currentYear, month, day)) {
+			console.warn(`Invalid date: ${currentYear}-${month}-${day}`);
+			continue; // Skip invalid dates
+		}
+
+		for (let i = 0; i < times.length; i++) {
+			const prayerTime = times[i];
+			const [hour, minute, second] = prayerTime.split(",").map(Number);
+
+			console.log(`-- Parsed in loop ${hour} ${minute} ${second}`);
+			if (!isValidTime(hour, minute, second)) {
+				console.warn(`Invalid time: ${hour}:${minute}:${second}`);
+				continue; // Skip invalid times
+			}
+
+			const trigger = new Date(currentYear, month - 1, day, hour);
+			trigger.setMinutes(minute);
+			trigger.setSeconds(second);
+
+			if (trigger < new Date(Date.now())) {
+				continue;
+			}
+
+			console.log("--- received inside scheduler ---");
+			// console.log(notificationTime);
+
+			await Notifications.scheduleNotificationAsync({
+				identifier: `${date}_${i}`, // Unique identifier for each notification
+				content: {
+					title: `Prayer Time - ${prayerNames[i]}`,
+					body: `It's time for ${prayerNames[i]} prayer on ${date}!`,
+				},
+				// trigger: {
+				// 	date: notificationTime,
+				// 	repeats: false,
+				// },
+				trigger,
+			});
+
+			// Log the time notification was set for
+			console.log(`${count++}--> ${trigger.toString()}`);
+			if (count > 64) {
+				break;
+			}
+		}
 	}
 };
 
-// export const registerForPushNotificationsAsync = async () => {
-// 	let token;
+function isValidDate(year, month, day) {
+	return (
+		!isNaN(year) &&
+		!isNaN(month) &&
+		!isNaN(day) &&
+		month >= 1 &&
+		month <= 12 &&
+		day >= 1 &&
+		day <= 31
+	);
+}
 
-// 	if (Platform.OS === "android") {
-// 		await Notifications.setNotificationChannelAsync("default", {
-// 			name: "default",
-// 			importance: Notifications.AndroidImportance.MAX,
-// 			vibrationPattern: [0, 250, 250, 250],
-// 			lightColor: "#FF231F7C",
-// 		});
-// 	}
-
-// 	if (Device.isDevice) {
-// 		const { status: existingStatus } =
-// 			await Notifications.getPermissionsAsync();
-// 		let finalStatus = existingStatus;
-// 		if (existingStatus !== "granted") {
-// 			const { status } = await Notifications.requestPermissionsAsync();
-// 			finalStatus = status;
-// 		}
-// 		if (finalStatus !== "granted") {
-// 			alert("Failed to get push token for push notification!");
-// 			return;
-// 		}
-// 		token = (await Notifications.getExpoPushTokenAsync()).data;
-// 		console.log(token);
-// 	} else {
-// 		alert("Must use physical device for Push Notifications");
-// 	}
-
-// 	return token;
-// };
+function isValidTime(hour, minute, second) {
+	return (
+		!isNaN(hour) &&
+		!isNaN(minute) &&
+		!isNaN(second) &&
+		hour >= 0 &&
+		hour <= 23 &&
+		minute >= 0 &&
+		minute <= 59 &&
+		second >= 0 &&
+		second <= 59
+	);
+}
