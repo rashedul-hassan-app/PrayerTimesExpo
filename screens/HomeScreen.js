@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, FlatList } from "react-native";
-import {
-	getAllNotificationSetupAlready,
-	schedulePrayerTimeNotifications,
-	clearAllNotifications,
-} from "../utils/handle-local-notification";
+import { registerBackgroundTask } from "../notifications/backgroundTask";
+
 import { prayerTimesEnum } from "../data/prayerTimesEnum";
-import { prayerTimes } from "../data/prayerTimes";
 import { prayerTimes365 } from "../data/prayerTimes365";
 import * as Notifications from "expo-notifications";
 import {
@@ -15,28 +11,38 @@ import {
 	getTodaysDatePatternAsString,
 } from "../utils/formatPrayerTime";
 import { getNextXDaysOfPrayerTimes } from "../utils/getPrayerTimes";
-
-// Configure how notifications should be handled when the app is in the foreground
-Notifications.setNotificationHandler({
-	handleNotification: async () => ({
-		shouldShowAlert: true,
-		shouldPlaySound: false,
-		shouldSetBadge: false,
-	}),
-});
+import { scheduleNotificationsOnPhone } from "../notifications/scheduler";
+import { initializeNotifications } from "../notifications/init";
 
 const HomeScreen = () => {
+	/* Notification Permission stuff */
+	useEffect(() => {
+		initializeNotifications();
+	}, []);
+
+	/* Foreground: Schedule Notifications */
 	useEffect(() => {
 		const fetchData = async () => {
-			await clearAllNotifications(); // Wait for clearAllNotifications to finish
-			schedulePrayerTimeNotifications(getNextXDaysOfPrayerTimes(3)); // Call schedulePrayerTimeNotifications after clearAllNotifications is done
+			const DAYS_TO_SETUP_PRAYER_TIMES = 2;
+			const nextXDays = getNextXDaysOfPrayerTimes(
+				DAYS_TO_SETUP_PRAYER_TIMES
+			);
+			console.log("--- inside FetchData -- x days data --");
+			console.log(nextXDays);
+
+			// Call the scheduler
+			await scheduleNotificationsOnPhone(DAYS_TO_SETUP_PRAYER_TIMES);
 		};
 
 		fetchData();
 	}, []);
 
-	const [scheduledNotifications, setScheduledNotifications] = useState([]);
+	/* Background Fetch: Schedule Notifications */
+	useEffect(() => {
+		registerBackgroundTask();
+	}, []);
 
+	const [scheduledNotifications, setScheduledNotifications] = useState([]);
 	const fetchScheduledNotifications = async () => {
 		try {
 			const notifications =
@@ -48,6 +54,7 @@ const HomeScreen = () => {
 		}
 	};
 
+	// Debug logs
 	const todayKey = getTodaysDatePatternLikeMM_DD();
 	const todaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
 		formatPrayerTimeToAMPM

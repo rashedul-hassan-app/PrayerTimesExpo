@@ -1,27 +1,4 @@
-/*
-    This file contains functions for scheduling push notifications and handling push notification 
-    permissions.
-
-    - schedulePushNotification schedules a local notification with a title, subtitle, and body 
-    to appear X seconds after calling it.
-
-    - registerForPushNotificationsAsync handles the setup of push notification permissions 
-    and generates an Expo push token for your device.
-*/
-
-import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
-import React, { useEffect } from "react";
-
-export const getAllNotificationSetupAlready = async () => {
-	console.log(await Notifications.getAllScheduleNotifications());
-};
-
-export const clearAllNotifications = async () => {
-	await Notifications.cancelAllScheduledNotificationsAsync();
-	console.log("== All notifications cleared ==");
-};
 
 const prayerNames = [
 	"Sehri",
@@ -32,6 +9,15 @@ const prayerNames = [
 	"Magrib",
 	"Isha",
 ];
+
+export const getAllNotificationSetupAlready = async () => {
+	console.log(await Notifications.getAllScheduleNotifications());
+};
+
+export const clearAllNotifications = async () => {
+	await Notifications.cancelAllScheduledNotificationsAsync();
+	console.log("== All notifications cleared ==");
+};
 
 export const schedulePrayerTimeNotifications = async (prayerTimes) => {
 	// Get the current year
@@ -75,10 +61,6 @@ export const schedulePrayerTimeNotifications = async (prayerTimes) => {
 					title: `Prayer Time - ${prayerNames[i]}`,
 					body: `It's time for ${prayerNames[i]} prayer on ${date}!`,
 				},
-				// trigger: {
-				// 	date: notificationTime,
-				// 	repeats: false,
-				// },
 				trigger,
 			});
 

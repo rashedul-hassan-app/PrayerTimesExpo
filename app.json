@@ -15,7 +15,17 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch",
+          "processing"
+        ],
+        "BGTaskSchedulerPermittedIdentifiers": [
+          "com.transistorsoft.fetch"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -30,6 +40,9 @@
       "eas": {
         "projectId": "bcb1b2a9-49dc-4faf-a4a0-60ab8863e9e3"
       }
+    },
+    "permissions": {
+      "background-fetch": {}
     },
     "owner": "hungrycoder"
   }

@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import * as Notifications from "expo-notifications";
-import { registerForPushNotificationsAsync } from "../utils/handle-local-notification";
+import { registerForPushNotificationsAsync } from "../notifications/handle-local-notification";
 
 export const useLocalNotification = () => {
 	const [expoPushToken, setExpoPushToken] = useState("");
