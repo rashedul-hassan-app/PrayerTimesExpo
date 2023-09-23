@@ -38,7 +38,6 @@ export const schedulePrayerTimeNotifications = async (prayerTimes) => {
 			const prayerTime = times[i];
 			const [hour, minute, second] = prayerTime.split(",").map(Number);
 
-			console.log(`-- Parsed in loop ${hour} ${minute} ${second}`);
 			if (!isValidTime(hour, minute, second)) {
 				console.warn(`Invalid time: ${hour}:${minute}:${second}`);
 				continue; // Skip invalid times
@@ -51,9 +50,6 @@ export const schedulePrayerTimeNotifications = async (prayerTimes) => {
 			if (trigger < new Date(Date.now())) {
 				continue;
 			}
-
-			console.log("--- received inside scheduler ---");
-			// console.log(notificationTime);
 
 			await Notifications.scheduleNotificationAsync({
 				identifier: `${date}_${i}`, // Unique identifier for each notification

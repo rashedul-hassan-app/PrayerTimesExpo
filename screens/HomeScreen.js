@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, FlatList } from "react-native";
+import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
 import { registerBackgroundTask } from "../notifications/backgroundTask";
 
 import { prayerTimesEnum } from "../data/prayerTimesEnum";
@@ -10,11 +10,48 @@ import {
 	getTodaysDatePatternLikeMM_DD,
 	getTodaysDatePatternAsString,
 } from "../utils/formatPrayerTime";
-import { getNextXDaysOfPrayerTimes } from "../utils/getPrayerTimes";
+import {
+	getNextPrayerName,
+	getNextPrayerTime,
+	getTimeRemainingUntilTheNextPrayer,
+	getNextXDaysOfPrayerTimes,
+} from "../utils/getPrayerTimes";
 import { scheduleNotificationsOnPhone } from "../notifications/scheduler";
 import { initializeNotifications } from "../notifications/init";
 
 const HomeScreen = () => {
+	const [nextPrayerName, setNextPrayerName] = useState("");
+	const [nextPrayerTime, setNextPrayerTime] = useState("");
+	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({});
+
+	/* Init Prayer times for UI */
+	// useEffect(() => {
+	// 	setNextPrayerName(getNextPrayerName());
+	// 	setNextPrayerTime(getNextPrayerTime());
+	// 	setNextPrayerCountdown(getTimeRemainingUntilTheNextPrayer());
+	// }, []);
+	useEffect(() => {
+		const updateCountdown = () => {
+			// Calculate the countdown every second
+			const countdown = getTimeRemainingUntilTheNextPrayer();
+			if (countdown) {
+				setNextPrayerCountdown(countdown);
+			}
+		};
+
+		// Update the countdown every second
+		const intervalId = setInterval(updateCountdown, 1000);
+
+		// Initial data fetching
+		setNextPrayerName(getNextPrayerName());
+		setNextPrayerTime(getNextPrayerTime());
+
+		// Cleanup the interval when the component unmounts
+		return () => {
+			clearInterval(intervalId);
+		};
+	}, [getNextPrayerName(), getNextPrayerTime()]);
+
 	/* Notification Permission stuff */
 	useEffect(() => {
 		initializeNotifications();
@@ -27,8 +64,8 @@ const HomeScreen = () => {
 			const nextXDays = getNextXDaysOfPrayerTimes(
 				DAYS_TO_SETUP_PRAYER_TIMES
 			);
-			console.log("--- inside FetchData -- x days data --");
-			console.log(nextXDays);
+			// console.log("--- inside FetchData -- x days data --");
+			// console.log(nextXDays);
 
 			// Call the scheduler
 			await scheduleNotificationsOnPhone(DAYS_TO_SETUP_PRAYER_TIMES);
@@ -59,8 +96,8 @@ const HomeScreen = () => {
 	const todaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
 		formatPrayerTimeToAMPM
 	);
-	console.log("todays prayer time");
-	console.log(getNextXDaysOfPrayerTimes(3));
+	// console.log("todays prayer time");
+	// console.log(getNextXDaysOfPrayerTimes(3));
 
 	return (
 		<View
@@ -88,6 +125,26 @@ const HomeScreen = () => {
 					</View>
 				)}
 			/>
+			<TouchableOpacity>
+				<Text style={{ fontSize: 24, marginBottom: 20 }}>
+					Next prayer: - {nextPrayerName}
+				</Text>
+			</TouchableOpacity>
+			<Text style={{ fontSize: 24, marginBottom: 20 }}>
+				{nextPrayerTime}
+			</Text>
+			<Text style={{ fontSize: 24, marginBottom: 20 }}>
+				{nextPrayerCountdown.hours > 0
+					? `${nextPrayerCountdown.hours} : `
+					: ""}
+
+				{nextPrayerCountdown.hours > 0 ||
+				nextPrayerCountdown.minutes > 0
+					? `${nextPrayerCountdown.minutes} : `
+					: ""}
+
+				{`${nextPrayerCountdown.seconds}`}
+			</Text>
 			<Button
 				title="See scheduled Notification Logs"
 				onPress={fetchScheduledNotifications}

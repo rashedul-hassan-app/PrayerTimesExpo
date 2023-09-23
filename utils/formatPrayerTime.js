@@ -10,12 +10,20 @@ export const formatPrayerTimeToAMPM = (time) => {
 	const formattedMinutes = minutes.toString().padStart(2, "0");
 	return `${formattedHours}:${formattedMinutes} ${period}`;
 };
+export const formatPrayerTimeTo24H = (amPmTime) => {
+	// Split the time string by ':' and space to handle variations
+	let [time, modifier] = amPmTime.split(" ");
+	let [hours, minutes] = time.split(":");
 
-export const formatPrayerTimeTo24H = (time) => {
-	const [hours, minutes] = time.split(",").map(Number);
-	const formattedHours = hours.toString().padStart(2, "0");
-	const formattedMinutes = minutes.toString().padStart(2, "0");
-	return `${formattedHours}:${formattedMinutes}`;
+	if (hours === "12") {
+		hours = "00";
+	}
+
+	if (modifier === "PM") {
+		hours = parseInt(hours, 10) + 12;
+	}
+
+	return `${hours}:${minutes}` || "";
 };
 
 export const getTodaysDatePatternLikeMM_DD = () => {
