@@ -4,9 +4,8 @@ import {
 	formatPrayerTimeToAMPM,
 	formatPrayerTimeTo24H,
 } from "./formatPrayerTime";
-import { prayerTimesEnum } from "../data/prayerTimesEnum";
 
-export const getNextXDaysOfPrayerTimes = (days) => {
+export const getNextXDaysOfPrayerTimes = (days, prayerTimes365) => {
 	const todayPattern = getTodaysDatePatternLikeMM_DD();
 
 	const keys = Object.keys(prayerTimes365);
@@ -27,13 +26,11 @@ export const getNextXDaysOfPrayerTimes = (days) => {
 		const key = circularKeys[i];
 		nextXDaysOfPrayerTimes[key] = prayerTimes365[key];
 	}
-
-	// console.log(nextXDaysOfPrayerTimes);
 	return nextXDaysOfPrayerTimes;
 };
 
 // Helper function to find the next prayer time and name
-const findNextPrayer = () => {
+const findNextPrayer = (prayerTimes365) => {
 	const todayPattern = getTodaysDatePatternLikeMM_DD();
 	const todaysTimes = prayerTimes365[todayPattern];
 	const currentTime = new Date();
@@ -90,32 +87,33 @@ const getPrayerName = (index) => {
 };
 
 // Function to get the next prayer name
-export const getNextPrayerName = () => {
-	const nextPrayerInfo = findNextPrayer();
+export const getNextPrayerName = (prayerTimes365) => {
+	const nextPrayerInfo = findNextPrayer(prayerTimes365);
 	return nextPrayerInfo ? nextPrayerInfo.name : "No upcoming prayer";
 };
 
 // Function to get the next prayer time
-export const getNextPrayerTime = () => {
-	const nextPrayerInfo = findNextPrayer();
+export const getNextPrayerTime = (prayerTimes365) => {
+	const nextPrayerInfo = findNextPrayer(prayerTimes365);
 	return nextPrayerInfo ? nextPrayerInfo.time : "No upcoming prayer";
 };
-export const getTimeRemainingUntilTheNextPrayer = () => {
-	const nextPrayerInfo = findNextPrayer();
+
+export const getTimeRemainingUntilTheNextPrayer = (prayerTimes365) => {
+	const nextPrayerInfo = findNextPrayer(prayerTimes365);
 	if (!nextPrayerInfo) {
 		return null;
 	}
 
 	// Convert the prayer time to 24-hour format
 	const formattedPrayerTime = formatPrayerTimeTo24H(nextPrayerInfo.time);
-	console.log(
-		`nxtP.tim=${nextPrayerInfo.time} formattedPrayertime in 24h ${formattedPrayerTime}`
-	);
+	// console.log(
+	// 	`nxtP.tim=${nextPrayerInfo.time} formattedPrayertime in 24h ${formattedPrayerTime}`
+	// );
 	// Split the formatted time string like "05:30" into hours and minutes
 	const [hoursOfNP, minutesOfNP] = formattedPrayerTime.split(":");
-	console.log(
-		`Passed Time ${nextPrayerInfo.time} ${formattedPrayerTime} OG ${hoursOfNP}, ${minutesOfNP}`
-	);
+	// console.log(
+	// 	`Passed Time ${nextPrayerInfo.time} ${formattedPrayerTime} OG ${hoursOfNP}, ${minutesOfNP}`
+	// );
 	// Get the current date and time
 	const currentTime = new Date();
 	const currentHours = currentTime.getHours();
@@ -125,9 +123,9 @@ export const getTimeRemainingUntilTheNextPrayer = () => {
 	// Create a new date object with today's date and the prayer time
 	const todayPrayerTime = new Date(currentTime);
 	todayPrayerTime.setHours(hoursOfNP, minutesOfNP, 0, 0);
-	console.log(
-		`C T ${currentTime}  Next PT ${todayPrayerTime} currH = ${currentHours} PT h=${hoursOfNP}`
-	);
+	// console.log(
+	// 	`C T ${currentTime}  Next PT ${todayPrayerTime} currH = ${currentHours} PT h=${hoursOfNP}`
+	// );
 	if (currentTime >= todayPrayerTime) {
 		// Today's prayer time has passed, so calculate time remaining until tomorrow's first prayer
 		const tomorrowFirstPrayerTime = new Date(currentTime);

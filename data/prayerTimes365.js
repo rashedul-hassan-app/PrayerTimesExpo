@@ -1,4 +1,4 @@
-export const prayerTimes365 = {
+export const appDataPrayerTimes365 = {
 	/*      January    */
 	"01_01": [
 		"6, 43, 0",

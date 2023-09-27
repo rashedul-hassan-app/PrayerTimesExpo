@@ -1,3 +1,4 @@
+import { get365PrayerDataFromLS } from "../data/dataManager";
 import { getNextXDaysOfPrayerTimes } from "../utils/getPrayerTimes"; // Import your utility functions here
 import {
 	clearAllNotifications,
@@ -6,8 +7,11 @@ import {
 
 export const scheduleNotificationsOnPhone = async (days = 7) => {
 	try {
+		const prayerTimes = await get365PrayerDataFromLS();
 		await clearAllNotifications();
-		schedulePrayerTimeNotifications(getNextXDaysOfPrayerTimes(days)); // Call schedulePrayerTimeNotifications after clearAllNotifications is done
+		await schedulePrayerTimeNotifications(
+			getNextXDaysOfPrayerTimes(days, prayerTimes)
+		);
 
 		console.log("--x--- Finished setting all notifications --x---");
 	} catch (err) {

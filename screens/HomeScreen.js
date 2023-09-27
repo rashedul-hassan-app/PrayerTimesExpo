@@ -3,7 +3,7 @@ import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
 import { registerBackgroundTask } from "../notifications/backgroundTask";
 
 import { prayerTimesEnum } from "../data/prayerTimesEnum";
-import { prayerTimes365 } from "../data/prayerTimes365";
+import { appDataPrayerTimes365 as fallBackPrayerTimes365 } from "../data/prayerTimes365";
 import * as Notifications from "expo-notifications";
 import {
 	formatPrayerTimeToAMPM,
@@ -18,60 +18,84 @@ import {
 } from "../utils/getPrayerTimes";
 import { scheduleNotificationsOnPhone } from "../notifications/scheduler";
 import { initializeNotifications } from "../notifications/init";
+import { useSelector } from "react-redux";
+import {
+	PRAYER_TIMES_KEY,
+	VERSION,
+	deleteFromLocalStorage,
+	get365PrayerDataFromLS,
+	saveToLocalStorage,
+} from "../data/dataManager";
 
 const HomeScreen = () => {
+	// const prayerData = useSelector((state) => state.prayerData.prayerData);
 	const [nextPrayerName, setNextPrayerName] = useState("");
 	const [nextPrayerTime, setNextPrayerTime] = useState("");
 	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({});
+	const [prayerTimes365, setPrayerTimes365] = useState({});
 
-	/* Init Prayer times for UI */
-	// useEffect(() => {
-	// 	setNextPrayerName(getNextPrayerName());
-	// 	setNextPrayerTime(getNextPrayerTime());
-	// 	setNextPrayerCountdown(getTimeRemainingUntilTheNextPrayer());
-	// }, []);
+	/* Initialize app with data from LS and update countdown */
 	useEffect(() => {
-		const updateCountdown = () => {
-			// Calculate the countdown every second
-			const countdown = getTimeRemainingUntilTheNextPrayer();
-			if (countdown) {
-				setNextPrayerCountdown(countdown);
+		async function fetchData() {
+			try {
+				// Read data from local storage
+				const data = await get365PrayerDataFromLS();
+
+				// Update the state with the data
+				setPrayerTimes365(data);
+
+				// Calculate the next prayer name and time
+				const nextPrayerName = getNextPrayerName(data);
+				const nextPrayerTime = getNextPrayerTime(data);
+				setNextPrayerName(nextPrayerName);
+				setNextPrayerTime(nextPrayerTime);
+
+				// Calculate and update the countdown every second
+				const intervalId = setInterval(() => {
+					const countdown = getTimeRemainingUntilTheNextPrayer(data);
+					if (countdown) {
+						setNextPrayerCountdown(countdown);
+					}
+				}, 1000);
+
+				// Cleanup the interval when the component unmounts
+				return () => {
+					clearInterval(intervalId);
+				};
+			} catch (error) {
+				console.error("Error fetching data:", error);
+				console.log("** Saving Fallback data to Local storage... **");
+
+				// Handle error and save fallback data if necessary
 			}
-		};
+		}
 
-		// Update the countdown every second
-		const intervalId = setInterval(updateCountdown, 1000);
-
-		// Initial data fetching
-		setNextPrayerName(getNextPrayerName());
-		setNextPrayerTime(getNextPrayerTime());
-
-		// Cleanup the interval when the component unmounts
-		return () => {
-			clearInterval(intervalId);
-		};
-	}, [getNextPrayerName(), getNextPrayerTime()]);
-
-	/* Notification Permission stuff */
-	useEffect(() => {
-		initializeNotifications();
+		fetchData();
 	}, []);
 
 	/* Foreground: Schedule Notifications */
 	useEffect(() => {
 		const fetchData = async () => {
 			const DAYS_TO_SETUP_PRAYER_TIMES = 2;
-			const nextXDays = getNextXDaysOfPrayerTimes(
-				DAYS_TO_SETUP_PRAYER_TIMES
-			);
-			// console.log("--- inside FetchData -- x days data --");
-			// console.log(nextXDays);
 
 			// Call the scheduler
-			await scheduleNotificationsOnPhone(DAYS_TO_SETUP_PRAYER_TIMES);
+			await scheduleNotificationsOnPhone(
+				DAYS_TO_SETUP_PRAYER_TIMES,
+				prayerTimes365
+			);
 		};
 
 		fetchData();
+	}, [prayerTimes365]); // Added dependency
+
+	/* Background Fetch: Schedule Notifications */
+	useEffect(() => {
+		registerBackgroundTask();
+	}, []);
+
+	/* Notification Permission stuff */
+	useEffect(() => {
+		initializeNotifications();
 	}, []);
 
 	/* Background Fetch: Schedule Notifications */
@@ -91,6 +115,14 @@ const HomeScreen = () => {
 		}
 	};
 
+	const fetchDataFromLS = () => {
+		const prayerData = get365PrayerDataFromLS();
+		console.log(prayerData);
+	};
+
+	const deleteDataFromLS = async () => {
+		await deleteFromLocalStorage();
+	};
 	// Debug logs
 	const todayKey = getTodaysDatePatternLikeMM_DD();
 	const todaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
@@ -136,15 +168,17 @@ const HomeScreen = () => {
 			<Text style={{ fontSize: 24, marginBottom: 20 }}>
 				{nextPrayerCountdown.hours > 0
 					? `${nextPrayerCountdown.hours} : `
-					: ""}
+					: null}
 
 				{nextPrayerCountdown.hours > 0 ||
 				nextPrayerCountdown.minutes > 0
 					? `${nextPrayerCountdown.minutes} : `
-					: ""}
+					: null}
 
 				{`${nextPrayerCountdown.seconds}`}
 			</Text>
+			<Button title="Check Local Storage" onPress={fetchDataFromLS} />
+			<Button title="DELETE Local Storage" onPress={deleteDataFromLS} />
 			<Button
 				title="See scheduled Notification Logs"
 				onPress={fetchScheduledNotifications}
