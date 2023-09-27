@@ -18,7 +18,6 @@ import {
 } from "../utils/getPrayerTimes";
 import { scheduleNotificationsOnPhone } from "../notifications/scheduler";
 import { initializeNotifications } from "../notifications/init";
-import { useSelector } from "react-redux";
 import {
 	PRAYER_TIMES_KEY,
 	VERSION,
