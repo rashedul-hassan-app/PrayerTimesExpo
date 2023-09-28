@@ -1,6 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appDataPrayerTimes365 } from "./prayerTimes365";
 
+import { firebaseConfig } from "../firebaseConfig"; // Import your Firebase configuration
+import firebase from "firebase/app";
+import { initializeApp } from "firebase/app";
+import "firebase/database";
+import { getFirestore, collection, getDocs } from "firebase/firestore/lite";
+import { getDatabase, ref, onValue, child, get } from "firebase/database";
+
 export const VERSION = "version";
 export const FIRST_TIME_APPUSE_VERSION_STRING = "0";
 export const PRAYER_TIMES_KEY = "prayerTimes365";
@@ -22,8 +29,8 @@ export const get365PrayerDataFromLS = async () => {
 		// And return this new data
 		console.log("-- came to -1");
 		const prayerData = await loadFromLocalStorageUsingKey(PRAYER_TIMES_KEY);
-		// console.log("======");
-		// console.log(prayerData);
+		console.log("======");
+		// console.log(JSON.stringify(prayerData));
 		return prayerData;
 	} else {
 		console.log("-- came to Else");
@@ -66,5 +73,39 @@ export const deleteFromLocalStorage = async () => {
 		console.log("Local storage cleared successfully");
 	} catch (error) {
 		console.error("Error clearing local storage:", error);
+	}
+};
+
+const app = initializeApp(firebaseConfig);
+
+export const checkCurrentVersionNumberFromFirebase = async () => {
+	const dbRef = ref(getDatabase(app));
+
+	try {
+		const snapshot = await get(child(dbRef, "version"));
+		if (snapshot.exists()) {
+			const data = snapshot.val();
+			return data; // Return the data
+		} else {
+			console.log("No data available");
+			return null;
+		}
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+};
+
+export const checkForNewDataUpdate = async () => {
+	const firebaseVersion = await checkCurrentVersionNumberFromFirebase();
+	console.log(`===== Firebase data ====`);
+	console.log(firebaseVersion);
+
+	const versionInLS = await loadFromLocalStorageUsingKey(VERSION);
+	console.log(`LS v = ${versionInLS} FB v = ${firebaseVersion}`);
+	if (firebaseVersion > versionInLS) {
+		console.log("new update available");
+	} else {
+		console.log("No new update available");
 	}
 };

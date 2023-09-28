@@ -79,11 +79,12 @@ const HomeScreen = () => {
 		const fetchData = async () => {
 			const DAYS_TO_SETUP_PRAYER_TIMES = 2;
 
-			// Call the scheduler
-			await scheduleNotificationsOnPhone(
-				DAYS_TO_SETUP_PRAYER_TIMES,
-				prayerTimes365
+			console.log(
+				"Setting Foreground Notification for days " +
+					DAYS_TO_SETUP_PRAYER_TIMES
 			);
+			// Call the scheduler
+			await scheduleNotificationsOnPhone(DAYS_TO_SETUP_PRAYER_TIMES);
 		};
 
 		fetchData();
@@ -124,8 +125,9 @@ const HomeScreen = () => {
 	const deleteDataFromLS = async () => {
 		await deleteFromLocalStorage();
 	};
+
+	/* Update the UI with today's prayer times */
 	useEffect(() => {
-		// Debug logs
 		const todayKey = getTodaysDatePatternLikeMM_DD();
 		const newTodaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
 			formatPrayerTimeToAMPM
