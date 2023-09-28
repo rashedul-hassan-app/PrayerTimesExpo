@@ -21,6 +21,7 @@ import { initializeNotifications } from "../notifications/init";
 import {
 	PRAYER_TIMES_KEY,
 	VERSION,
+	checkForNewDataUpdate,
 	deleteFromLocalStorage,
 	get365PrayerDataFromLS,
 	saveToLocalStorage,
@@ -32,6 +33,7 @@ const HomeScreen = () => {
 	const [nextPrayerTime, setNextPrayerTime] = useState("");
 	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({});
 	const [prayerTimes365, setPrayerTimes365] = useState({});
+	const [todaysPrayerTimes, setTodaysPrayerTimes] = useState([]);
 
 	/* Initialize app with data from LS and update countdown */
 	useEffect(() => {
@@ -116,19 +118,22 @@ const HomeScreen = () => {
 
 	const fetchDataFromLS = () => {
 		const prayerData = get365PrayerDataFromLS();
-		console.log(prayerData);
+		// console.log(prayerData);
 	};
 
 	const deleteDataFromLS = async () => {
 		await deleteFromLocalStorage();
 	};
-	// Debug logs
-	const todayKey = getTodaysDatePatternLikeMM_DD();
-	const todaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
-		formatPrayerTimeToAMPM
-	);
-	// console.log("todays prayer time");
-	// console.log(getNextXDaysOfPrayerTimes(3));
+	useEffect(() => {
+		// Debug logs
+		const todayKey = getTodaysDatePatternLikeMM_DD();
+		const newTodaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
+			formatPrayerTimeToAMPM
+		);
+
+		// Update the state with the new data
+		setTodaysPrayerTimes(newTodaysPrayerTimes);
+	}, [prayerTimes365]); // Run only when prayerTimes365 changes
 
 	return (
 		<View
@@ -176,6 +181,7 @@ const HomeScreen = () => {
 
 				{`${nextPrayerCountdown.seconds}`}
 			</Text>
+			<Button title="Firebase Data" onPress={checkForNewDataUpdate} />
 			<Button title="Check Local Storage" onPress={fetchDataFromLS} />
 			<Button title="DELETE Local Storage" onPress={deleteDataFromLS} />
 			<Button
