@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, Text, Button, FlatList, TouchableOpacity } from "react-native";
-import { registerBackgroundTask } from "../notifications/backgroundTask";
+import {
+	registerBackgroundTask,
+	registerBackgroundTaskToUpdateData,
+} from "../notifications/backgroundTask";
 
 import { prayerTimesEnum } from "../data/prayerTimesEnum";
 import { appDataPrayerTimes365 as fallBackPrayerTimes365 } from "../data/prayerTimes365";
@@ -21,58 +24,82 @@ import { initializeNotifications } from "../notifications/init";
 import {
 	PRAYER_TIMES_KEY,
 	VERSION,
-	checkForNewDataUpdate,
+	applyNewUpdate,
 	deleteFromLocalStorage,
 	get365PrayerDataFromLS,
+	loadFromLocalStorageUsingKey,
 	saveToLocalStorage,
 } from "../data/dataManager";
 
 const HomeScreen = () => {
-	// const prayerData = useSelector((state) => state.prayerData.prayerData);
 	const [nextPrayerName, setNextPrayerName] = useState("");
 	const [nextPrayerTime, setNextPrayerTime] = useState("");
 	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({});
 	const [prayerTimes365, setPrayerTimes365] = useState({});
 	const [todaysPrayerTimes, setTodaysPrayerTimes] = useState([]);
+	const [currentVersion, setCurrentVersion] = useState("x");
+	const [isUpdated, setIsUpdated] = useState(false);
+	const intervalRef = useRef(null); // Ref to store the current running interval
 
-	/* Initialize app with data from LS and update countdown */
-	useEffect(() => {
-		async function fetchData() {
-			try {
-				// Read data from local storage
-				const data = await get365PrayerDataFromLS();
-
-				// Update the state with the data
-				setPrayerTimes365(data);
-
-				// Calculate the next prayer name and time
-				const nextPrayerName = getNextPrayerName(data);
-				const nextPrayerTime = getNextPrayerTime(data);
-				setNextPrayerName(nextPrayerName);
-				setNextPrayerTime(nextPrayerTime);
-
-				// Calculate and update the countdown every second
-				const intervalId = setInterval(() => {
-					const countdown = getTimeRemainingUntilTheNextPrayer(data);
-					if (countdown) {
-						setNextPrayerCountdown(countdown);
-					}
-				}, 1000);
-
-				// Cleanup the interval when the component unmounts
-				return () => {
-					clearInterval(intervalId);
-				};
-			} catch (error) {
-				console.error("Error fetching data:", error);
-				console.log("** Saving Fallback data to Local storage... **");
-
-				// Handle error and save fallback data if necessary
-			}
+	const updatePrayerDetails = (data) => {
+		if (intervalRef.current) {
+			// If there's an existing interval, clear it
+			clearInterval(intervalRef.current);
 		}
 
-		fetchData();
-	}, []);
+		// Get the next prayer details and update the state
+		const nextPrayerName = getNextPrayerName(data);
+		const nextPrayerTime = getNextPrayerTime(data);
+		setNextPrayerName(nextPrayerName);
+		setNextPrayerTime(nextPrayerTime);
+
+		// Set an interval to update the countdown every second
+		intervalRef.current = setInterval(() => {
+			const countdown = getTimeRemainingUntilTheNextPrayer(data);
+			if (countdown) {
+				setNextPrayerCountdown(countdown);
+			}
+		}, 1000);
+	};
+
+	const initAppDataFromLSAndUpdateCountdown = async () => {
+		try {
+			// Read data from local storage
+			const data = await get365PrayerDataFromLS();
+			const version = await loadFromLocalStorageUsingKey(VERSION);
+
+			// Update the state with the data
+			setPrayerTimes365(data);
+			setCurrentVersion(version);
+
+			// Use the extracted data to set next prayer details
+			updatePrayerDetails(data);
+		} catch (error) {
+			console.error("Error fetching data:", error);
+			console.log("** Saving Fallback data to Local storage... **");
+			// Handle error and save fallback data if necessary
+		}
+	};
+
+	useEffect(() => {
+		// On component mount, initialize app data and setup countdown
+		initAppDataFromLSAndUpdateCountdown();
+
+		// Cleanup on component unmount: clear any running intervals
+		return () => {
+			if (intervalRef.current) {
+				// On component unmount, clear the interval
+				clearInterval(intervalRef.current);
+			}
+		};
+	}, [currentVersion]);
+
+	useEffect(() => {
+		// Whenever the prayer times data changes, update the next prayer details
+		if (prayerTimes365 && Object.keys(prayerTimes365).length) {
+			updatePrayerDetails(prayerTimes365);
+		}
+	}, [prayerTimes365]);
 
 	/* Foreground: Schedule Notifications */
 	useEffect(() => {
@@ -93,6 +120,7 @@ const HomeScreen = () => {
 	/* Background Fetch: Schedule Notifications */
 	useEffect(() => {
 		registerBackgroundTask();
+		registerBackgroundTaskToUpdateData();
 	}, []);
 
 	/* Notification Permission stuff */
@@ -100,10 +128,12 @@ const HomeScreen = () => {
 		initializeNotifications();
 	}, []);
 
-	/* Background Fetch: Schedule Notifications */
 	useEffect(() => {
-		registerBackgroundTask();
-	}, []);
+		if (isUpdated) {
+			console.log("The data has been updated");
+			setIsUpdated(false); // Reset after using it.
+		}
+	}, [isUpdated]);
 
 	const [scheduledNotifications, setScheduledNotifications] = useState([]);
 	const fetchScheduledNotifications = async () => {
@@ -135,14 +165,14 @@ const HomeScreen = () => {
 
 		// Update the state with the new data
 		setTodaysPrayerTimes(newTodaysPrayerTimes);
-	}, [prayerTimes365]); // Run only when prayerTimes365 changes
+	}, [prayerTimes365, currentVersion]); // Run only when prayerTimes365 changes
 
 	return (
 		<View
 			style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
 		>
 			<Text style={{ fontSize: 24, marginBottom: 20 }}>
-				Today's Prayer Times
+				{currentVersion}
 			</Text>
 			<Text style={{ fontSize: 20, marginBottom: 20 }}>
 				{getTodaysDatePatternAsString()}
@@ -183,7 +213,16 @@ const HomeScreen = () => {
 
 				{`${nextPrayerCountdown.seconds}`}
 			</Text>
-			<Button title="Firebase Data" onPress={checkForNewDataUpdate} />
+			<Button
+				title="Check for Update"
+				onPress={async () => {
+					const result = await applyNewUpdate();
+					if (result) {
+						await initAppDataFromLSAndUpdateCountdown();
+						setIsUpdated(true);
+					}
+				}}
+			/>
 			<Button title="Check Local Storage" onPress={fetchDataFromLS} />
 			<Button title="DELETE Local Storage" onPress={deleteDataFromLS} />
 			<Button

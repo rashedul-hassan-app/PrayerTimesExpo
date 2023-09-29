@@ -78,11 +78,11 @@ export const deleteFromLocalStorage = async () => {
 
 const app = initializeApp(firebaseConfig);
 
-export const checkCurrentVersionNumberFromFirebase = async () => {
+export const readDataFromFirebaseUsingKey = async (key) => {
 	const dbRef = ref(getDatabase(app));
 
 	try {
-		const snapshot = await get(child(dbRef, "version"));
+		const snapshot = await get(child(dbRef, key));
 		if (snapshot.exists()) {
 			const data = snapshot.val();
 			return data; // Return the data
@@ -96,16 +96,41 @@ export const checkCurrentVersionNumberFromFirebase = async () => {
 	}
 };
 
-export const checkForNewDataUpdate = async () => {
-	const firebaseVersion = await checkCurrentVersionNumberFromFirebase();
+export const returnVersionIfNewUpdateAvailable = async () => {
+	const firebaseVersion = await readDataFromFirebaseUsingKey(VERSION);
 	console.log(`===== Firebase data ====`);
 	console.log(firebaseVersion);
+	console.log(typeof firebaseVersion);
 
 	const versionInLS = await loadFromLocalStorageUsingKey(VERSION);
 	console.log(`LS v = ${versionInLS} FB v = ${firebaseVersion}`);
 	if (firebaseVersion > versionInLS) {
 		console.log("new update available");
+		return firebaseVersion;
 	} else {
 		console.log("No new update available");
+		return 0;
+	}
+};
+
+export const applyNewUpdate = async () => {
+	const versionToApply = await returnVersionIfNewUpdateAvailable();
+	console.log(`ver to apply ${versionToApply}`);
+	if (versionToApply) {
+		try {
+			const fbData = await readDataFromFirebaseUsingKey(PRAYER_TIMES_KEY);
+			await saveToLocalStorage(PRAYER_TIMES_KEY, fbData);
+			await saveToLocalStorage(VERSION, versionToApply);
+			console.warn("New update applied! Version = ", versionToApply);
+			return true;
+		} catch (err) {
+			console.warn("Unable to apply new update to Local storage: ", err);
+			return false;
+		}
+	} else {
+		console.log(
+			"** Bad update version. No new update applied to Local storage **"
+		);
+		return false;
 	}
 };
