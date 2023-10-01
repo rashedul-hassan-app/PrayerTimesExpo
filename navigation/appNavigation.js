@@ -2,6 +2,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/HomeScreen";
+import PremiumScreen from "../screens/PremiumScreen";
 import { Dimensions, LogBox, Platform, View } from "react-native";
 
 const Stack = createNativeStackNavigator();
@@ -19,12 +20,16 @@ export default function AppNavigation() {
 					contentStyle: { backgroundColor: "white" },
 				}}
 			>
-				<Stack.Screen
+				{/* <Stack.Screen
 					name="HomeScreen"
 					component={HomeScreen}
 					options={{ headerShown: true }}
+				/> */}
+				<Stack.Screen
+					name="PremiumScreen"
+					component={PremiumScreen}
+					options={{ headerShown: true }}
 				/>
-				{/* <Stack.Screen name="Product" options={{headerShown: false}} /> */}
 			</Stack.Navigator>
 		</NavigationContainer>
 	);
