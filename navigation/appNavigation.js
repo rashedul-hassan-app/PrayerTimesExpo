@@ -3,9 +3,14 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/HomeScreen";
 import PremiumScreen from "../screens/PremiumScreen";
-import { Dimensions, LogBox, Platform, View } from "react-native";
+import { Dimensions, LogBox, Platform, View, StyleSheet } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { themeColors } from "../constants";
+
+import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const ios = Platform.OS == "ios";
 LogBox.ignoreLogs([
@@ -27,10 +32,106 @@ export default function AppNavigation() {
 				/> */}
 				<Stack.Screen
 					name="PremiumScreen"
-					component={PremiumScreen}
-					options={{ headerShown: true }}
+					component={HomeTabs}
+					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>
 		</NavigationContainer>
 	);
 }
+
+const HomeTabs = () => {
+	return (
+		<Tab.Navigator
+			screenOptions={({ route }) => ({
+				headerShown: false,
+				tabBarShowLabel: false,
+				tabBarIcon: ({ focused }) => menuIcons(route, focused),
+				tabBarStyle: {
+					marginBottom: 20,
+					height: 75,
+					alignItems: "center",
+
+					borderRadius: 100,
+					marginHorizontal: 20,
+					backgroundColor: themeColors.bgLight,
+				},
+				tabBarItemStyle: {
+					marginTop: ios ? 30 : 0,
+					// marginBottom: ios ? -20 : 0,
+
+					display: "flex",
+					backgroundColor: "red",
+					justifyContent: "center",
+					alignItems: "center",
+					alignContent: "center",
+					// height: "100%",
+				},
+			})}
+		>
+			<Tab.Screen name="home" component={PremiumScreen} />
+			<Tab.Screen name="favourite" component={HomeScreen} />
+			<Tab.Screen name="cart" component={HomeScreen} />
+		</Tab.Navigator>
+	);
+};
+
+const menuIcons = (route, focused) => {
+	let icon;
+
+	if (route.name === "home") {
+		icon = focused ? (
+			<Ionicons name="home" size={30} color="black" />
+		) : (
+			<Ionicons name="home-outline" size={30} color="black" />
+		);
+	} else if (route.name === "favourite") {
+		icon = focused ? (
+			<MaterialIcons name="favorite" size={30} color="black" />
+		) : (
+			<MaterialIcons name="favorite-outline" size={30} color="black" />
+		);
+	} else if (route.name === "cart") {
+		icon = focused ? (
+			<FontAwesome5 name="calendar-day" size={30} color="black" />
+		) : (
+			<FontAwesome5 name="calendar-check" size={30} color="black" />
+		);
+	}
+
+	let buttonStyle = focused ? styles.tabIconContainer : {};
+	return (
+		<View
+			style={[buttonStyle, { backgroundColor: focused ? "white" : "" }]}
+		>
+			{icon}
+		</View>
+	);
+};
+
+const styles = StyleSheet.create({
+	tabBar: {
+		marginBottom: 20,
+		height: 175,
+		alignItems: "center",
+		borderRadius: 100,
+		marginHorizontal: 20,
+		backgroundColor: themeColors.bgLight,
+	},
+	tabBarItem: {
+		marginTop: ios ? 30 : 0,
+	},
+	tabIconContainer: {
+		// flex: 1,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+		borderRadius: 100,
+		padding: 10,
+		shadowColor: "black",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.3,
+		shadowRadius: 4,
+	},
+	// Add more styles as needed
+});

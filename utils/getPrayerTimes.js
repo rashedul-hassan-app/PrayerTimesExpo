@@ -73,7 +73,7 @@ const findNextPrayer = (prayerTimes365) => {
 };
 
 // Helper function to get the prayer name based on index
-const getPrayerName = (index) => {
+export const getPrayerName = (index) => {
 	const prayerNames = {
 		0: "Sehri",
 		1: "Fajr",
@@ -160,4 +160,12 @@ export const getTimeRemainingUntilTheNextPrayer = (prayerTimes365) => {
 			seconds: secondsRemaining,
 		};
 	}
+};
+
+export const getTodaysPrayerTimes = (prayerTimes365) => {
+	const todayKey = getTodaysDatePatternLikeMM_DD();
+	const newTodaysPrayerTimes = (prayerTimes365[todayKey] || []).map(
+		formatPrayerTimeToAMPM
+	);
+	return newTodaysPrayerTimes;
 };
