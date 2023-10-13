@@ -57,15 +57,15 @@ const HomeTabs = () => {
 					backgroundColor: themeColors.bgLight,
 				},
 				tabBarItemStyle: {
-					marginTop: ios ? 30 : 0,
+					marginTop: ios ? 10 : 0,
 					// marginBottom: ios ? -20 : 0,
 
 					display: "flex",
-					backgroundColor: "red",
+					// backgroundColor: "red",
 					justifyContent: "center",
 					alignItems: "center",
 					alignContent: "center",
-					// height: "100%",
+					height: 50,
 				},
 			})}
 		>
@@ -78,24 +78,32 @@ const HomeTabs = () => {
 
 const menuIcons = (route, focused) => {
 	let icon;
-
+	const ICON_SIZE = 30;
 	if (route.name === "home") {
 		icon = focused ? (
-			<Ionicons name="home" size={30} color="black" />
+			<Ionicons name="home" size={ICON_SIZE} color="black" />
 		) : (
-			<Ionicons name="home-outline" size={30} color="black" />
+			<Ionicons name="home-outline" size={ICON_SIZE} color="black" />
 		);
 	} else if (route.name === "favourite") {
 		icon = focused ? (
-			<MaterialIcons name="favorite" size={30} color="black" />
+			<MaterialIcons name="favorite" size={ICON_SIZE} color="black" />
 		) : (
-			<MaterialIcons name="favorite-outline" size={30} color="black" />
+			<MaterialIcons
+				name="favorite-outline"
+				size={ICON_SIZE}
+				color="black"
+			/>
 		);
 	} else if (route.name === "cart") {
 		icon = focused ? (
-			<FontAwesome5 name="calendar-day" size={30} color="black" />
+			<FontAwesome5 name="calendar-day" size={ICON_SIZE} color="black" />
 		) : (
-			<FontAwesome5 name="calendar-check" size={30} color="black" />
+			<FontAwesome5
+				name="calendar-check"
+				size={ICON_SIZE}
+				color="black"
+			/>
 		);
 	}
 
@@ -112,7 +120,7 @@ const menuIcons = (route, focused) => {
 const styles = StyleSheet.create({
 	tabBar: {
 		marginBottom: 20,
-		height: 175,
+		height: 195,
 		alignItems: "center",
 		borderRadius: 100,
 		marginHorizontal: 20,

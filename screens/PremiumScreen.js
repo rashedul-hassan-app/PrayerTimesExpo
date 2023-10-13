@@ -80,13 +80,14 @@ const PremiumScreen = () => {
 					<FontAwesome name="bell-o" size={26} color="black" />
 				</View>
 				<View style={styles.circlesContainer}>
-					{todaysPrayerTimes.map((item, index) => (
-						<Circles
-							key={index}
-							prayerName={getPrayerName(index)}
-							prayerTime={item}
-						/>
-					))}
+					{todaysPrayerTimes &&
+						todaysPrayerTimes.map((item, index) => (
+							<Circles
+								key={index}
+								prayerName={getPrayerName(index)}
+								prayerTime={item}
+							/>
+						))}
 				</View>
 				{/* Big card */}
 			</SafeAreaView>
