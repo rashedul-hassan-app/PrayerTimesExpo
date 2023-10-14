@@ -32,13 +32,13 @@ export const initializeNotifications = async () => {
 		}),
 	});
 
-	// Get the device token (Expo Push Token) if needed
-	const getToken = async () => {
-		const { data: token } = await Notifications.getExpoPushTokenAsync();
-		console.log("Expo Push Token:", token);
-	};
+	// // Get the device token (Expo Push Token) if needed
+	// const getToken = async () => {
+	// 	const { data: token } = await Notifications.getExpoPushTokenAsync();
+	// 	console.log("Expo Push Token:", token);
+	// };
 
 	// Request notification permissions and get the token
 	await requestNotificationPermission();
-	await getToken();
+	// await getToken();
 };
