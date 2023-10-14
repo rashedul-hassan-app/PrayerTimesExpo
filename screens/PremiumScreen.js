@@ -21,7 +21,7 @@ import { Ionicons, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 
 // import { themeColors } from "../theme";
 // import { categories, coffeeItems } from "../constants";
-import CoffeeCard from "../components/card";
+import CoffeeCard from "../components/coffee-card";
 import Circles from "../components/circles";
 import styles from "./styles";
 import { coffeeItems } from "../constants";
@@ -31,6 +31,7 @@ import {
 	getTodaysPrayerTimes,
 } from "../utils/getPrayerTimes";
 import { get365PrayerDataFromLS } from "../data/dataManager";
+import { getTodaysDatePatternAsString } from "../utils/formatPrayerTime";
 
 const PremiumScreen = () => {
 	const [todaysPrayerTimes, setTodaysPrayerTimes] = useState();
@@ -80,6 +81,9 @@ const PremiumScreen = () => {
 					<FontAwesome name="bell-o" size={26} color="black" />
 				</View>
 				<View style={styles.circlesContainer}>
+					<Text style={{ fontSize: 20, marginBottom: 20 }}>
+						{getTodaysDatePatternAsString()}
+					</Text>
 					{todaysPrayerTimes &&
 						todaysPrayerTimes.map((item, index) => (
 							<Circles

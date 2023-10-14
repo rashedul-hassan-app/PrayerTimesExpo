@@ -8,6 +8,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { themeColors } from "../constants";
 
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+import BaseScreen from "../screens/BaseScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,7 +72,7 @@ const HomeTabs = () => {
 		>
 			<Tab.Screen name="home" component={PremiumScreen} />
 			<Tab.Screen name="favourite" component={HomeScreen} />
-			<Tab.Screen name="cart" component={HomeScreen} />
+			<Tab.Screen name="cart" component={BaseScreen} />
 		</Tab.Navigator>
 	);
 };

@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
 		zIndex: 10,
 		fontWeight: "bold",
 	},
-	cardText: {
+	nextPrayer: {
 		fontSize: 18,
 		marginVertical: 2,
 		color: themeColors.bgLight,
@@ -55,5 +55,11 @@ export const styles = StyleSheet.create({
 		position: "absolute",
 		right: 10,
 		bottom: 10,
+	},
+	countdown: {
+		fontSize: 40,
+		marginVertical: 2,
+		color: themeColors.bgLight,
+		fontWeight: "bold",
 	},
 });
