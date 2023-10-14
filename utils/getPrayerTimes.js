@@ -78,7 +78,7 @@ export const getPrayerName = (index) => {
 		0: "Sehri",
 		1: "Fajr",
 		2: "Sunrise",
-		3: "Zuhr",
+		3: new Date().getDay() === 5 ? "Jummah" : "Zuhr",
 		4: "Asr",
 		5: "Maghrib",
 		6: "Isha",

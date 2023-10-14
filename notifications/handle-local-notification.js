@@ -1,17 +1,18 @@
 import * as Notifications from "expo-notifications";
+import { getPrayerName } from "../utils/getPrayerTimes";
 
-const prayerNames = [
-	"Sehri",
-	"Fajr",
-	"Sunrise",
-	"Zuhr",
-	"Asr",
-	"Magrib",
-	"Isha",
-];
+// const prayerNames = [
+// 	"Sehri",
+// 	"Fajr",
+// 	"Sunrise",
+// 	"Zuhr",
+// 	"Asr",
+// 	"Magrib",
+// 	"Isha",
+// ];
 
 export const getAllNotificationSetupAlready = async () => {
-	console.log(await Notifications.getAllScheduleNotifications());
+	console.log(await Notifications.getAllScheduledNotificationsAsync());
 };
 
 export const clearAllNotifications = async () => {
@@ -54,8 +55,10 @@ export const schedulePrayerTimeNotifications = async (prayerTimes) => {
 			await Notifications.scheduleNotificationAsync({
 				identifier: `${date}_${i}`, // Unique identifier for each notification
 				content: {
-					title: `Prayer Time - ${prayerNames[i]}`,
-					body: `It's time for ${prayerNames[i]} prayer on ${date}!`,
+					title: `Prayer Time - ${getPrayerName(i)}`,
+					body: `It's time for ${getPrayerName(
+						i
+					)} prayer on ${date}!`,
 				},
 				trigger,
 			});
