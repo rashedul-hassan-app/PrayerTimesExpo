@@ -56,21 +56,26 @@ const BaseScreen = () => {
 	const [isUpdated, setIsUpdated] = useState(false);
 	const intervalRef = useRef(null); // Ref to store the current running interval
 
-	const updatePrayerDetails = (data) => {
+	const setNextPrayerNameAndTime = (prayer365DataFromLS) => {
+		const nextPrayerName = getNextPrayerName(prayer365DataFromLS);
+		const nextPrayerTime = getNextPrayerTime(prayer365DataFromLS);
+		setNextPrayerName(nextPrayerName);
+		setNextPrayerTime(nextPrayerTime);
+	};
+
+	const updatePrayerDetails = (prayer365DataFromLS) => {
 		if (intervalRef.current) {
 			// If there's an existing interval, clear it
 			clearInterval(intervalRef.current);
 		}
 
 		// Get the next prayer details and update the state
-		const nextPrayerName = getNextPrayerName(data);
-		const nextPrayerTime = getNextPrayerTime(data);
-		setNextPrayerName(nextPrayerName);
-		setNextPrayerTime(nextPrayerTime);
+		setNextPrayerNameAndTime(prayer365DataFromLS);
 
 		// Set an interval to update the countdown every second
 		intervalRef.current = setInterval(() => {
-			const countdown = getTimeRemainingUntilTheNextPrayer(data);
+			const countdown =
+				getTimeRemainingUntilTheNextPrayer(prayer365DataFromLS);
 			if (countdown) {
 				setNextPrayerCountdown(countdown);
 			}
@@ -80,15 +85,15 @@ const BaseScreen = () => {
 	const initAppDataFromLSAndUpdateCountdown = async () => {
 		try {
 			// Read data from local storage
-			const data = await get365PrayerDataFromLS();
+			const prayer365DataFromLS = await get365PrayerDataFromLS();
 			const version = await loadFromLocalStorageUsingKey(VERSION);
 
 			// Update the state with the data
-			setPrayerTimes365(data);
+			setPrayerTimes365(prayer365DataFromLS);
 			setCurrentVersion(version);
 
 			// Use the extracted data to set next prayer details
-			updatePrayerDetails(data);
+			updatePrayerDetails(prayer365DataFromLS);
 		} catch (error) {
 			console.error("Error fetching data:", error);
 			console.log("** Saving Fallback data to Local storage... **");
@@ -199,6 +204,7 @@ const BaseScreen = () => {
 			{/* Big card */}
 			<View style={styles.prayerCardContainer}>
 				<CoffeeCard
+					key={nextPrayerName}
 					item={coffeeItems[0]}
 					next={nextPrayerName}
 					countdown={nextPrayerCountdown}

@@ -42,11 +42,21 @@ const getCountdownParts = (nextPrayerCountdown) => {
 
 export default function CoffeeCard({ item, next, countdown, isActive }) {
 	const BELL_SIZE = 25;
+	const coffeeImages = {
+		sehri: require("../../assets/images/coffee_sehri.png"),
+		fajr: require("../../assets/images/coffee_fajr.png"),
+		sunrise: require("../../assets/images/coffee_sunrise.png"),
+		zuhr: require("../../assets/images/coffee_zuhr.png"),
+		asr: require("../../assets/images/coffee_asr.png"),
+		magrib: require("../../assets/images/coffee_magrib.png"),
+		isha: require("../../assets/images/coffee_isha.png"),
+	};
 
+	const imgSource = coffeeImages[next?.toLowerCase()];
 	return (
 		<View style={styles.cardContainer}>
 			<View style={styles.cardImageContainer}>
-				<Image source={item.image} style={styles.cardImage} />
+				<Image source={imgSource} style={styles.cardImage} />
 			</View>
 
 			<View style={styles.textContainer}>
