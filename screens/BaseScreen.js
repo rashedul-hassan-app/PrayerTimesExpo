@@ -191,7 +191,10 @@ const BaseScreen = () => {
 			/>
 			<SafeAreaView style={styles.container}>
 				<TopHeader />
-				<PrayerBoard todaysPrayerTimes={todaysPrayerTimes} />
+				<PrayerBoard
+					todaysPrayerTimes={todaysPrayerTimes}
+					nextPrayerName={nextPrayerName}
+				/>
 			</SafeAreaView>
 			{/* Big card */}
 			<View style={styles.prayerCardContainer}>

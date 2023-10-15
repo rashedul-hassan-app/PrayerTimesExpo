@@ -22,13 +22,23 @@ import { prayerIcons } from "../../constants";
 const { width, height } = Dimensions.get("window");
 const ios = Platform.OS == "ios";
 
-export default function Circles({ prayerName, prayerTime }) {
+export default function Circles({ prayerName, prayerTime, isActive }) {
 	// const icon = prayerIcons[item.toString().toLowerCase()];
 	return (
-		<View style={styles.container}>
-			{/* <Image source={icon} style={styles.circleImage} /> */}
-			<Text style={styles.text}>{prayerName}</Text>
-			<Text style={styles.text}>{prayerTime}</Text>
+		<View
+			style={[
+				styles.nextPrayerContainer,
+				isActive ? styles.active : null,
+			]}
+		>
+			<Text style={styles.nextPrayerName}>{prayerName}</Text>
+			<View style={styles.borderLine}></View>
+			<Text style={styles.nextPrayerTime}>
+				{prayerTime.split(" ")[0].toUpperCase()}
+			</Text>
+			<View style={styles.amPm}>
+				<Text style={styles.amPmText}>{prayerTime.split(" ")[1]}</Text>
+			</View>
 		</View>
 	);
 }

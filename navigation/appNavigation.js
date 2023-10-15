@@ -7,7 +7,12 @@ import { Dimensions, LogBox, Platform, View, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { themeColors } from "../constants";
 
-import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+import {
+	AntDesign,
+	Ionicons,
+	MaterialIcons,
+	FontAwesome5,
+} from "@expo/vector-icons";
 import BaseScreen from "../screens/BaseScreen";
 
 const Stack = createNativeStackNavigator();
@@ -79,31 +84,43 @@ const HomeTabs = () => {
 
 const menuIcons = (route, focused) => {
 	let icon;
-	const ICON_SIZE = 30;
+	const ICON_SIZE = 24;
 	if (route.name === "home") {
 		icon = focused ? (
-			<Ionicons name="home" size={ICON_SIZE} color="black" />
+			<AntDesign
+				name="clockcircle"
+				size={ICON_SIZE}
+				color={themeColors.bgLight}
+			/>
 		) : (
-			<Ionicons name="home-outline" size={ICON_SIZE} color="black" />
+			<AntDesign name="clockcircleo" size={ICON_SIZE} color={"white"} />
 		);
 	} else if (route.name === "favourite") {
 		icon = focused ? (
-			<MaterialIcons name="favorite" size={ICON_SIZE} color="black" />
+			<MaterialIcons
+				name="favorite"
+				size={ICON_SIZE}
+				color={themeColors.bgLight}
+			/>
 		) : (
 			<MaterialIcons
 				name="favorite-outline"
 				size={ICON_SIZE}
-				color="black"
+				color={"white"}
 			/>
 		);
 	} else if (route.name === "cart") {
 		icon = focused ? (
-			<FontAwesome5 name="calendar-day" size={ICON_SIZE} color="black" />
+			<FontAwesome5
+				name="calendar-day"
+				size={ICON_SIZE}
+				color={themeColors.bgLight}
+			/>
 		) : (
 			<FontAwesome5
 				name="calendar-check"
 				size={ICON_SIZE}
-				color="black"
+				color={"white"}
 			/>
 		);
 	}
@@ -136,7 +153,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		alignItems: "center",
 		borderRadius: 100,
-		padding: 10,
+		padding: 13,
 		shadowColor: "black",
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.3,

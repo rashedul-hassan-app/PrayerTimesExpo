@@ -8,6 +8,7 @@ export const themeColors = {
 	bgLight: "#d4a574",
 	bgDark: "#8c5319",
 	text: "#3C2A21",
+	selected: "#780116",
 };
 
 export const prayerIcons = {
@@ -49,7 +50,7 @@ export const coffeeItems = [
 		price: "25.50",
 		volume: "116 ml",
 		stars: "4.6",
-		image: require("../assets/images/coffee1.png"),
+		image: require("../assets/images/coffee7.png"),
 		desc: "The taste of coffee can vary depending on factors such as the type of beans, roast level, brewing method, and the addition of any flavors or sweeteners.",
 	},
 

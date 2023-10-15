@@ -11,12 +11,7 @@ import {
 import React from "react";
 import { styles } from "./styles";
 
-import {
-	Feather,
-	Ionicons,
-	FontAwesome,
-	FontAwesome5,
-} from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import { prayerIcons, themeColors } from "../../constants";
 
 const { width, height } = Dimensions.get("window");
@@ -34,15 +29,20 @@ const getCountdownParts = (nextPrayerCountdown) => {
 			);
 		} else if (nextPrayerCountdown.minutes > 0) {
 			return (
-				nextPrayerCountdown.minutes + ":" + nextPrayerCountdown.seconds
+				nextPrayerCountdown.minutes +
+				":" +
+				nextPrayerCountdown.seconds +
+				"s"
 			);
 		} else {
-			return nextPrayerCountdown.seconds;
+			return nextPrayerCountdown.seconds + " seconds";
 		}
 	}
 };
 
-export default function CoffeeCard({ item, next, countdown }) {
+export default function CoffeeCard({ item, next, countdown, isActive }) {
+	const BELL_SIZE = 25;
+
 	return (
 		<View style={styles.cardContainer}>
 			<View style={styles.cardImageContainer}>
@@ -50,8 +50,7 @@ export default function CoffeeCard({ item, next, countdown }) {
 			</View>
 
 			<View style={styles.textContainer}>
-				<Text style={styles.cardTextTitle}>Next</Text>
-				<Text style={styles.nextPrayer}>{next}</Text>
+				<Text style={styles.cardTextTitle}>Next in</Text>
 				{countdown ? (
 					<Text style={styles.countdown}>
 						{getCountdownParts(countdown)}
@@ -59,6 +58,25 @@ export default function CoffeeCard({ item, next, countdown }) {
 				) : (
 					<Text>{"Loading ..."}</Text>
 				)}
+
+				<View style={styles.nextPrayerContainer}>
+					<Text style={styles.nextPrayer}>{next}</Text>
+					<TouchableOpacity style={styles.bellContainer}>
+						{isActive ? (
+							<FontAwesome
+								name="bell-o"
+								size={BELL_SIZE}
+								color="white"
+							/>
+						) : (
+							<FontAwesome
+								name="bell-slash"
+								size={BELL_SIZE}
+								color="white"
+							/>
+						)}
+					</TouchableOpacity>
+				</View>
 			</View>
 		</View>
 	);
