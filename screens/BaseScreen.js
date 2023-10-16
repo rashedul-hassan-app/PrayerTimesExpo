@@ -31,8 +31,10 @@ import {
 import {
 	getNextPrayerName,
 	getNextPrayerTime,
+	getNextPrayerDate,
 	getTimeRemainingUntilTheNextPrayer,
 	getNextXDaysOfPrayerTimes,
+	getNextPrayerFullDetails,
 } from "../utils/getPrayerTimes";
 import { scheduleNotificationsOnPhone } from "../notifications/scheduler";
 import { initializeNotifications } from "../notifications/init";
@@ -49,6 +51,9 @@ import {
 const BaseScreen = () => {
 	const [nextPrayerName, setNextPrayerName] = useState("");
 	const [nextPrayerTime, setNextPrayerTime] = useState("");
+	const [nextPrayerDate, setNextPrayerDate] = useState("");
+	const [nextPrayerIsTomorrow, setNextPrayerIsTomorrow] = useState(false);
+
 	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({});
 	const [prayerTimes365, setPrayerTimes365] = useState({});
 	const [todaysPrayerTimes, setTodaysPrayerTimes] = useState([]);
@@ -57,10 +62,12 @@ const BaseScreen = () => {
 	const intervalRef = useRef(null); // Ref to store the current running interval
 
 	const setNextPrayerNameAndTime = (prayer365DataFromLS) => {
-		const nextPrayerName = getNextPrayerName(prayer365DataFromLS);
-		const nextPrayerTime = getNextPrayerTime(prayer365DataFromLS);
-		setNextPrayerName(nextPrayerName);
-		setNextPrayerTime(nextPrayerTime);
+		const fullNextPrayerDetails =
+			getNextPrayerFullDetails(prayer365DataFromLS);
+		setNextPrayerName(fullNextPrayerDetails.name);
+		setNextPrayerTime(fullNextPrayerDetails.time);
+		setNextPrayerDate(fullNextPrayerDetails.date);
+		setNextPrayerIsTomorrow(fullNextPrayerDetails.isTomorrow);
 	};
 
 	const updatePrayerDetails = (prayer365DataFromLS) => {
@@ -73,11 +80,31 @@ const BaseScreen = () => {
 		setNextPrayerNameAndTime(prayer365DataFromLS);
 
 		// Set an interval to update the countdown every second
-		intervalRef.current = setInterval(() => {
+		// Set an interval to update the countdown every second
+		intervalRef.current = setInterval(async () => {
 			const countdown =
 				getTimeRemainingUntilTheNextPrayer(prayer365DataFromLS);
 			if (countdown) {
 				setNextPrayerCountdown(countdown);
+
+				// Check if the countdown is zero
+				if (
+					countdown.hours === 0 &&
+					countdown.minutes === 0 &&
+					countdown.seconds === 1
+				) {
+					setNextPrayerCountdown("It's time!");
+					// Clear the current interval, so that we stop the countdown
+					clearInterval(intervalRef.current);
+
+					// Re-fetch your data or re-initialize your app data here
+					// await initAppDataFromLSAndUpdateCountdown();
+					setTimeout(() => {
+						updatePrayerDetails(prayer365DataFromLS);
+					}, 1500);
+				}
+			} else if (countdown === undefined) {
+				setNextPrayerCountdown("Loading");
 			}
 		}, 1000);
 	};
@@ -143,6 +170,16 @@ const BaseScreen = () => {
 		registerBackgroundTaskToUpdateData();
 	}, []);
 
+	// useEffect(() => {
+	// 	console.log(`-- countdown -- changed ${nextPrayerCountdown}`);
+	// 	console.log(
+	// 		nextPrayerCountdown.hours,
+	// 		nextPrayerCountdown.minutes,
+	// 		nextPrayerCountdown.seconds
+	// 	);
+	// 	console.log(nextPrayerName, nextPrayerTime);
+	// }, [nextPrayerCountdown]);
+
 	/* Notification Permission stuff */
 	useEffect(() => {
 		initializeNotifications();
@@ -206,8 +243,13 @@ const BaseScreen = () => {
 				<CoffeeCard
 					key={nextPrayerName}
 					item={coffeeItems[0]}
-					next={nextPrayerName}
-					countdown={nextPrayerCountdown}
+					nextPrayerName={nextPrayerName}
+					nextPrayerTime={nextPrayerTime}
+					nextPrayerDate={nextPrayerDate}
+					countdown={
+						nextPrayerCountdown ? nextPrayerCountdown : "Loading"
+					}
+					isTomorrow={nextPrayerIsTomorrow}
 				/>
 			</View>
 		</View>

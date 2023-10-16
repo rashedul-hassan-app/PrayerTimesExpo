@@ -68,12 +68,16 @@ export const styles = StyleSheet.create({
 		width: "100%",
 	},
 	nextPrayer: {
-		fontSize: 24,
+		fontSize: 16,
 		marginVertical: 2,
 		color: "rgba(255,255,255,0.9)",
 		fontWeight: "bold",
 		paddingHorizontal: 16,
 		paddingVertical: 4,
+	},
+	nextPrayerTime: {
+		color: "rgba(255,255,255,1)",
+		fontSize: 16,
 	},
 	bellContainer: {
 		padding: 10,
@@ -108,5 +112,18 @@ export const styles = StyleSheet.create({
 				elevation: 3,
 			},
 		}),
+	},
+	alertText: {
+		fontSize: 15,
+		paddingHorizontal: 2,
+		marginLeft: 0,
+		// color: themeColors.selected,
+		paddingRight: 2,
+	},
+
+	alertBorder: {
+		borderWidth: 2,
+		borderColor: "white",
+		backgroundColor: themeColors.selected,
 	},
 });

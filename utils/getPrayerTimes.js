@@ -31,6 +31,7 @@ export const getNextXDaysOfPrayerTimes = (days, prayerTimes365) => {
 
 // Helper function to find the next prayer time and name
 const findNextPrayer = (prayerTimes365) => {
+	let isTomorrow = false;
 	const todayPattern = getTodaysDatePatternLikeMM_DD();
 	const todaysTimes = prayerTimes365[todayPattern];
 	const currentTime = new Date();
@@ -53,14 +54,17 @@ const findNextPrayer = (prayerTimes365) => {
 
 		if (prayerTime > currentTime) {
 			const nextPrayerName = getPrayerName(i);
-			return { name: nextPrayerName, time: formatPrayerTimeToAMPM(time) };
+			return {
+				name: nextPrayerName,
+				time: formatPrayerTimeToAMPM(time),
+				date: todayPattern,
+				isTomorrow,
+			};
 		}
 	}
 
 	// If no future prayer time was found for today, get the first time for tomorrow
-	const tomorrowPattern = getTodaysDatePatternLikeMM_DD(
-		new Date(currentTime.getTime() + 24 * 60 * 60 * 1000)
-	);
+	const tomorrowPattern = getTodaysDatePatternLikeMM_DD(true);
 	const tomorrowTimes = prayerTimes365[tomorrowPattern];
 
 	if (!tomorrowTimes || tomorrowTimes.length === 0) {
@@ -69,7 +73,14 @@ const findNextPrayer = (prayerTimes365) => {
 
 	const nextPrayerName = getPrayerName(0);
 	const nextPrayerTime = formatPrayerTimeToAMPM(tomorrowTimes[0]);
-	return { name: nextPrayerName, time: nextPrayerTime };
+	isTomorrow = true;
+
+	return {
+		name: nextPrayerName,
+		time: nextPrayerTime,
+		date: tomorrowPattern,
+		isTomorrow,
+	};
 };
 
 // Helper function to get the prayer name based on index
@@ -80,16 +91,26 @@ export const getPrayerName = (index) => {
 		2: "Sunrise",
 		3: new Date().getDay() === 5 ? "Jummah" : "Zuhr",
 		4: "Asr",
-		5: "Maghrib",
+		5: "Magrib",
 		6: "Isha",
 	};
 	return prayerNames[index] || "Unknown";
+};
+
+export const getNextPrayerFullDetails = (prayerTimes365) => {
+	const nextPrayerInfo = findNextPrayer(prayerTimes365);
+	return nextPrayerInfo ? nextPrayerInfo : "No upcoming prayer";
 };
 
 // Function to get the next prayer name
 export const getNextPrayerName = (prayerTimes365) => {
 	const nextPrayerInfo = findNextPrayer(prayerTimes365);
 	return nextPrayerInfo ? nextPrayerInfo.name : "No upcoming prayer";
+};
+
+export const getNextPrayerDate = (prayerTimes365) => {
+	const nextPrayerInfo = findNextPrayer(prayerTimes365);
+	return nextPrayerInfo ? nextPrayerInfo.date : "Today";
 };
 
 // Function to get the next prayer time

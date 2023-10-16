@@ -13,6 +13,7 @@ import { styles } from "./styles";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { prayerIcons, themeColors } from "../../constants";
+import { convertToDateStringFromMM_DD } from "../../utils/formatPrayerTime";
 
 const { width, height } = Dimensions.get("window");
 const ios = Platform.OS == "ios";
@@ -40,7 +41,14 @@ const getCountdownParts = (nextPrayerCountdown) => {
 	}
 };
 
-export default function CoffeeCard({ item, next, countdown, isActive }) {
+export default function CoffeeCard({
+	item,
+	nextPrayerName,
+	nextPrayerTime,
+	nextPrayerDate,
+	isTomorrow,
+	countdown,
+}) {
 	const BELL_SIZE = 25;
 	const coffeeImages = {
 		sehri: require("../../assets/images/coffee_sehri.png"),
@@ -52,7 +60,7 @@ export default function CoffeeCard({ item, next, countdown, isActive }) {
 		isha: require("../../assets/images/coffee_isha.png"),
 	};
 
-	let imgSource = coffeeImages[next?.toLowerCase()];
+	let imgSource = coffeeImages[nextPrayerName?.toLowerCase()];
 
 	return (
 		<View style={styles.cardContainer}>
@@ -61,7 +69,7 @@ export default function CoffeeCard({ item, next, countdown, isActive }) {
 			</View>
 
 			<View style={styles.textContainer}>
-				<Text style={styles.cardTextTitle}>Next in</Text>
+				<Text style={styles.cardTextTitle}>{nextPrayerName} in</Text>
 				{countdown ? (
 					<Text style={styles.countdown}>
 						{getCountdownParts(countdown)}
@@ -70,22 +78,26 @@ export default function CoffeeCard({ item, next, countdown, isActive }) {
 					<Text>{"Loading ..."}</Text>
 				)}
 
-				<View style={styles.nextPrayerContainer}>
-					<Text style={styles.nextPrayer}>{next}</Text>
+				<View
+					style={[
+						styles.nextPrayerContainer,
+						isTomorrow ? styles.alertBorder : null,
+					]}
+				>
+					<Text
+						style={[
+							styles.nextPrayer,
+							isTomorrow ? styles.alertText : null,
+						]}
+					>
+						{isTomorrow
+							? "Tomorrow"
+							: convertToDateStringFromMM_DD(nextPrayerDate)}
+					</Text>
 					<TouchableOpacity style={styles.bellContainer}>
-						{isActive ? (
-							<FontAwesome
-								name="bell-o"
-								size={BELL_SIZE}
-								color="white"
-							/>
-						) : (
-							<FontAwesome
-								name="bell-slash"
-								size={BELL_SIZE}
-								color="white"
-							/>
-						)}
+						<Text style={styles.nextPrayerTime}>
+							{nextPrayerTime}
+						</Text>
 					</TouchableOpacity>
 				</View>
 			</View>

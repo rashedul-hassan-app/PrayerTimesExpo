@@ -1,5 +1,17 @@
-import { prayerTimes365 } from "../data/prayerTimes365";
-
+const months = [
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+];
 // Helper function to format prayer time from H, MM, S to HH:MM AM/PM
 export const formatPrayerTimeToAMPM = (time) => {
 	const [hours, minutes] = time.split(",").map(Number);
@@ -26,8 +38,12 @@ export const formatPrayerTimeTo24H = (amPmTime) => {
 	return `${hours}:${minutes}` || "";
 };
 
-export const getTodaysDatePatternLikeMM_DD = () => {
+// If you want the tomorrow's time, pass 'true' as a param
+export const getTodaysDatePatternLikeMM_DD = (tomorrow = false) => {
 	const today = new Date();
+	if (tomorrow) {
+		today.setDate(today.getDate() + 1);
+	}
 	const month = (today.getMonth() + 1).toString().padStart(2, "0");
 	const day = today.getDate().toString().padStart(2, "0");
 	const todayPattern = `${month}_${day}`;
@@ -35,24 +51,19 @@ export const getTodaysDatePatternLikeMM_DD = () => {
 };
 
 export const getTodaysDatePatternAsString = () => {
-	const months = [
-		"Jan",
-		"Feb",
-		"Mar",
-		"Apr",
-		"May",
-		"Jun",
-		"Jul",
-		"Aug",
-		"Sep",
-		"Oct",
-		"Nov",
-		"Dec",
-	];
-
 	const today = new Date();
 	const month = months[today.getMonth()];
 	const day = today.getDate();
 
 	return `${month} ${day}`;
+};
+
+export const convertToDateStringFromMM_DD = (dateString) => {
+	if (dateString) {
+		const month = dateString.split("_")[0];
+		const date = dateString.split("_")[1];
+
+		return `${months[month - 1]} ${date}`;
+	}
+	return "Loading";
 };
