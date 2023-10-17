@@ -88,7 +88,7 @@ export const styles = StyleSheet.create({
 		bottom: 10,
 	},
 	countdown: {
-		fontSize: 40,
+		fontSize: 36,
 		marginVertical: 2,
 		color: "white",
 		fontWeight: "bold",

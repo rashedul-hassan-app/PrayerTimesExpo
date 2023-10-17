@@ -8,7 +8,7 @@ import {
 	Platform,
 	FlatList,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { styles } from "./styles";
 
 import { FontAwesome } from "@expo/vector-icons";
@@ -35,7 +35,7 @@ const getCountdownParts = (nextPrayerCountdown) => {
 				"s"
 			);
 		} else {
-			return nextPrayerCountdown.seconds + " seconds";
+			return nextPrayerCountdown.seconds + "s";
 		}
 	}
 };
@@ -52,7 +52,8 @@ export default function CoffeeCard({ item, next, countdown, isActive }) {
 		isha: require("../../assets/images/coffee_isha.png"),
 	};
 
-	const imgSource = coffeeImages[next?.toLowerCase()];
+	let imgSource = coffeeImages[next?.toLowerCase()];
+
 	return (
 		<View style={styles.cardContainer}>
 			<View style={styles.cardImageContainer}>
