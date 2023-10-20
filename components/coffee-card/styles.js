@@ -56,9 +56,10 @@ export const styles = StyleSheet.create({
 	nextPrayerContainer: {
 		backgroundColor: "rgba(255,255,255,0.2)",
 		borderRadius: "50%",
-		paddingHorizontal: 8,
-		padding: 5,
-		marginVertical: 1,
+		paddingLeft: 10,
+		paddingRight: 0,
+		paddingVertical: 6,
+		marginVertical: 0,
 		borderColor: "white",
 
 		display: "flex",
@@ -72,8 +73,8 @@ export const styles = StyleSheet.create({
 		marginVertical: 2,
 		color: "rgba(255,255,255,0.9)",
 		fontWeight: "bold",
-		paddingHorizontal: 16,
-		paddingVertical: 4,
+		// paddingHorizontal: 16,
+		// paddingVertical: 4,
 	},
 	nextPrayerTime: {
 		color: "rgba(255,255,255,1)",
@@ -82,9 +83,8 @@ export const styles = StyleSheet.create({
 	bellContainer: {
 		padding: 10,
 		backgroundColor: themeColors.bgDark,
-		// backgroundColor: "red",
 		borderRadius: "50%",
-		marginRight: 16,
+		marginRight: 8,
 	},
 	plusButton: {
 		position: "absolute",

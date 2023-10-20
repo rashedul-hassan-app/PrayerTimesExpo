@@ -18,12 +18,24 @@ import {
 	FontAwesome5,
 } from "@expo/vector-icons";
 import { prayerIcons } from "../../constants";
+import { formatPrayerTimeTo24H } from "../../utils/formatPrayerTime";
 
 const { width, height } = Dimensions.get("window");
 const ios = Platform.OS == "ios";
 
-export default function Circles({ prayerName, prayerTime, isActive }) {
-	// const icon = prayerIcons[item.toString().toLowerCase()];
+export default function Circles({
+	prayerName,
+	prayerTime,
+	isActive,
+	is24h,
+	nextPrayerIsTomorrow,
+}) {
+	// override active state if next prayer is tomorrow
+	if (nextPrayerIsTomorrow) {
+		isActive = false;
+	}
+
+	console.log("is 24 from circles " + is24h);
 	return (
 		<View
 			style={[
@@ -34,10 +46,14 @@ export default function Circles({ prayerName, prayerTime, isActive }) {
 			<Text style={styles.nextPrayerName}>{prayerName}</Text>
 			<View style={styles.borderLine}></View>
 			<Text style={styles.nextPrayerTime}>
-				{prayerTime.split(" ")[0].toUpperCase()}
+				{is24h
+					? formatPrayerTimeTo24H(prayerTime)
+					: prayerTime.split(" ")[0]}
 			</Text>
-			<View style={styles.amPm}>
-				<Text style={styles.amPmText}>{prayerTime.split(" ")[1]}</Text>
+			<View style={[styles.amPm, is24h ? styles.hide : null]}>
+				<Text style={styles.amPmText}>
+					{prayerTime.split(" ")[1].toUpperCase()}
+				</Text>
 			</View>
 		</View>
 	);

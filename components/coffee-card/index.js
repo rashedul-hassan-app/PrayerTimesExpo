@@ -13,7 +13,10 @@ import { styles } from "./styles";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { prayerIcons, themeColors } from "../../constants";
-import { convertToDateStringFromMM_DD } from "../../utils/formatPrayerTime";
+import {
+	convertToDateStringFromMM_DD,
+	formatPrayerTimeTo24H,
+} from "../../utils/formatPrayerTime";
 
 const { width, height } = Dimensions.get("window");
 const ios = Platform.OS == "ios";
@@ -48,6 +51,7 @@ export default function CoffeeCard({
 	nextPrayerDate,
 	isTomorrow,
 	countdown,
+	is24h,
 }) {
 	const BELL_SIZE = 25;
 	const coffeeImages = {
@@ -96,7 +100,9 @@ export default function CoffeeCard({
 					</Text>
 					<TouchableOpacity style={styles.bellContainer}>
 						<Text style={styles.nextPrayerTime}>
-							{nextPrayerTime}
+							{is24h
+								? formatPrayerTimeTo24H(nextPrayerTime)
+								: nextPrayerTime}
 						</Text>
 					</TouchableOpacity>
 				</View>

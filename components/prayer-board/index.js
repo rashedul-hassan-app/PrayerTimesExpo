@@ -14,7 +14,12 @@ import { getTodaysDatePatternAsString } from "../../utils/formatPrayerTime";
 import Circles from "../circles";
 import { getPrayerName } from "../../utils/getPrayerTimes";
 
-export default function PrayerBoard({ todaysPrayerTimes, nextPrayerName }) {
+export default function PrayerBoard({
+	todaysPrayerTimes,
+	nextPrayerName,
+	is24h,
+	nextPrayerIsTomorrow,
+}) {
 	return (
 		<View style={styles.circlesContainer}>
 			{todaysPrayerTimes &&
@@ -24,6 +29,8 @@ export default function PrayerBoard({ todaysPrayerTimes, nextPrayerName }) {
 						prayerName={getPrayerName(index)}
 						prayerTime={item}
 						isActive={nextPrayerName === getPrayerName(index)}
+						is24h={is24h}
+						nextPrayerIsTomorrow={nextPrayerIsTomorrow}
 					/>
 				))}
 		</View>

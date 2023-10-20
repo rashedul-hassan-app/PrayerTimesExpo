@@ -20,14 +20,14 @@ export const get365PrayerDataFromLS = async () => {
 	const versionData = await loadFromLocalStorageUsingKey(VERSION);
 	console.log(`Version data found = ${versionData}`);
 
-	if (versionData != -1) {
+	if (versionData != false) {
 		// we have found data from LS, handle them
 		// Make a fetch call to Firebase to check if newer version of data available
 		// If no new data available, return the current Local storage data
 		// If new data available, update Version string with Firebase
 		// And download new data, and update local storage with new data
 		// And return this new data
-		console.log("-- came to -1");
+		console.log("-- came to -1 or false");
 		const prayerData = await loadFromLocalStorageUsingKey(PRAYER_TIMES_KEY);
 		console.log("======");
 		// console.log(JSON.stringify(prayerData));
@@ -47,12 +47,12 @@ export const loadFromLocalStorageUsingKey = async (key) => {
 		if (storedData) {
 			return JSON.parse(storedData);
 		} else {
-			// Return -1 when no data is found
-			return -1;
+			// Return false when no data is found
+			return false;
 		}
 	} catch (error) {
-		console.error("Error loading version data:", error);
-		return -1; // Handle errors by returning -1
+		console.error(`Error loading ${key} data:`, error);
+		return false; // Handle errors by returning false
 	}
 };
 

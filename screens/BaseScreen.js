@@ -53,8 +53,13 @@ const BaseScreen = () => {
 	const [nextPrayerTime, setNextPrayerTime] = useState("");
 	const [nextPrayerDate, setNextPrayerDate] = useState("");
 	const [nextPrayerIsTomorrow, setNextPrayerIsTomorrow] = useState(false);
+	const [is24h, setIs24h] = useState(false);
 
-	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({});
+	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({
+		hours: 0,
+		minutes: 0,
+		seconds: 0,
+	});
 	const [prayerTimes365, setPrayerTimes365] = useState({});
 	const [todaysPrayerTimes, setTodaysPrayerTimes] = useState([]);
 	const [currentVersion, setCurrentVersion] = useState("x");
@@ -114,7 +119,8 @@ const BaseScreen = () => {
 			// Read data from local storage
 			const prayer365DataFromLS = await get365PrayerDataFromLS();
 			const version = await loadFromLocalStorageUsingKey(VERSION);
-
+			const readTimeFormat = await loadFromLocalStorageUsingKey("is24h");
+			setIs24h(readTimeFormat);
 			// Update the state with the data
 			setPrayerTimes365(prayer365DataFromLS);
 			setCurrentVersion(version);
@@ -170,16 +176,6 @@ const BaseScreen = () => {
 		registerBackgroundTaskToUpdateData();
 	}, []);
 
-	// useEffect(() => {
-	// 	console.log(`-- countdown -- changed ${nextPrayerCountdown}`);
-	// 	console.log(
-	// 		nextPrayerCountdown.hours,
-	// 		nextPrayerCountdown.minutes,
-	// 		nextPrayerCountdown.seconds
-	// 	);
-	// 	console.log(nextPrayerName, nextPrayerTime);
-	// }, [nextPrayerCountdown]);
-
 	/* Notification Permission stuff */
 	useEffect(() => {
 		initializeNotifications();
@@ -224,6 +220,15 @@ const BaseScreen = () => {
 		setTodaysPrayerTimes(newTodaysPrayerTimes);
 	}, [prayerTimes365, currentVersion]); // Run only when prayerTimes365 changes
 
+	const toggle24hFormat = () => {
+		// Toggle the value
+		const newValue = !is24h;
+		setIs24h(newValue);
+
+		// Save the new value to local storage
+		saveToLocalStorage("is24h", String(newValue));
+	};
+
 	return (
 		<View style={styles.screen}>
 			<StatusBar />
@@ -232,10 +237,12 @@ const BaseScreen = () => {
 				style={styles.premium_top_bg}
 			/>
 			<SafeAreaView style={styles.container}>
-				<TopHeader />
+				<TopHeader is24h={is24h} onClick={toggle24hFormat} />
 				<PrayerBoard
 					todaysPrayerTimes={todaysPrayerTimes}
 					nextPrayerName={nextPrayerName}
+					is24h={is24h}
+					nextPrayerIsTomorrow={nextPrayerIsTomorrow}
 				/>
 			</SafeAreaView>
 			{/* Big card */}
@@ -250,6 +257,7 @@ const BaseScreen = () => {
 						nextPrayerCountdown ? nextPrayerCountdown : "Loading"
 					}
 					isTomorrow={nextPrayerIsTomorrow}
+					is24h={is24h}
 				/>
 			</View>
 		</View>

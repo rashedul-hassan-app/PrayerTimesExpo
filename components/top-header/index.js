@@ -11,8 +11,15 @@ import {
 import styles from "./styles";
 import { Ionicons, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { getTodaysDatePatternAsString } from "../../utils/formatPrayerTime";
+import { useEffect, useState } from "react";
+import {
+	loadFromLocalStorageUsingKey,
+	saveToLocalStorage,
+} from "../../data/dataManager";
 
-const TopHeader = () => {
+const TopHeader = ({ is24h, onClick }) => {
+	const [is24hours, setIs24hours] = useState(is24h);
+
 	return (
 		<View style={styles.avatar_bell_icon}>
 			<Ionicons name="person-circle-outline" size={42} color="black" />
@@ -22,7 +29,13 @@ const TopHeader = () => {
 					{getTodaysDatePatternAsString()}
 				</Text>
 			</View>
-			<FontAwesome name="bell-o" size={26} color="black" />
+			<TouchableOpacity onPress={onClick}>
+				<FontAwesome
+					name={is24hours ? "bell" : "bell-o"}
+					size={26}
+					color="black"
+				/>
+			</TouchableOpacity>
 		</View>
 	);
 };

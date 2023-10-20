@@ -23,7 +23,10 @@ export const formatPrayerTimeToAMPM = (time) => {
 	return `${formattedHours}:${formattedMinutes} ${period}`;
 };
 export const formatPrayerTimeTo24H = (amPmTime) => {
-	// Split the time string by ':' and space to handle variations
+	if (amPmTime === undefined) {
+		return "";
+	}
+
 	let [time, modifier] = amPmTime.split(" ");
 	let [hours, minutes] = time.split(":");
 
