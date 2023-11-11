@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
 		maxHeight: "80%", // This ensures the modal doesn't exceed 80% height
 		padding: 20,
 		backgroundColor: "white",
-		borderRadius: 10,
+		borderRadius: 24,
 		overflow: "scroll", // Makes content scrollable if it exceeds modal size
 		bottom: 0,
 	},

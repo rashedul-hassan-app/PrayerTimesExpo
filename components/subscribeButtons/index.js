@@ -10,6 +10,10 @@ const SubscribeButtons = ({ subType, icon, price, subtitle }) => {
 	const isActive = subtitle.toLowerCase() === "monthly";
 	const isBlue = subtitle.toLowerCase() === "yearly";
 
+	const priceParts = price?.split(".") || [];
+	const intPrice = priceParts[0] || "0";
+	const fractionPrice = priceParts.length > 1 ? priceParts[1] : "0";
+
 	return (
 		<View
 			style={[
@@ -26,7 +30,10 @@ const SubscribeButtons = ({ subType, icon, price, subtitle }) => {
 			)}
 			<Text style={styles.subType}>{subType}</Text>
 			<Text style={styles.icon}>{icon}</Text>
-			<Text style={styles.price}>{price}</Text>
+			<View style={styles.priceContainer}>
+				<Text style={styles.intPrice}>{intPrice}</Text>
+				<Text style={styles.fractionPrice}>{fractionPrice}</Text>
+			</View>
 			<Text style={styles.subtitle}>{subtitle}</Text>
 
 			<TouchableOpacity

@@ -24,9 +24,20 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		marginTop: 12,
 	},
-	price: {
-		fontSize: 24,
+	priceContainer: {
+		display: "flex",
+		flexDirection: "row",
+		justifyContent: "center",
+	},
+	intPrice: {
+		fontSize: 28,
 		textAlign: "center",
+	},
+	fractionPrice: {
+		fontSize: 12,
+		textAlign: "center",
+		opacity: 0.8,
+		bottom: -4,
 	},
 	subtitle: {
 		fontSize: 12,
