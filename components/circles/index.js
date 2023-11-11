@@ -35,12 +35,12 @@ export default function Circles({
 		isActive = false;
 	}
 
-	console.log("is 24 from circles " + is24h);
 	return (
 		<View
 			style={[
 				styles.nextPrayerContainer,
 				isActive ? styles.active : null,
+				nextPrayerIsTomorrow ? styles.fade : null,
 			]}
 		>
 			<Text style={styles.nextPrayerName}>{prayerName}</Text>

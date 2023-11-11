@@ -5,6 +5,7 @@ import CoffeeCard from "../components/coffee-card";
 import TopHeader from "../components/top-header";
 import PrayerBoard from "../components/prayer-board";
 import { coffeeItems } from "../constants";
+import SimpleModal from "../components/SimpleModal";
 
 import React, { useEffect, useState, useRef } from "react";
 import {
@@ -54,6 +55,7 @@ const BaseScreen = () => {
 	const [nextPrayerDate, setNextPrayerDate] = useState("");
 	const [nextPrayerIsTomorrow, setNextPrayerIsTomorrow] = useState(false);
 	const [is24h, setIs24h] = useState(false);
+	const [currentDay, setCurrentDay] = useState(new Date().getDate());
 
 	const [nextPrayerCountdown, setNextPrayerCountdown] = useState({
 		hours: 0,
@@ -65,6 +67,12 @@ const BaseScreen = () => {
 	const [currentVersion, setCurrentVersion] = useState("x");
 	const [isUpdated, setIsUpdated] = useState(false);
 	const intervalRef = useRef(null); // Ref to store the current running interval
+
+	const [isModalVisible, setIsModalVisible] = useState(false);
+
+	// Modal handlers
+	const showModal = () => setIsModalVisible(true);
+	const closeModal = () => setIsModalVisible(false);
 
 	const setNextPrayerNameAndTime = (prayer365DataFromLS) => {
 		const fullNextPrayerDetails =
@@ -135,6 +143,20 @@ const BaseScreen = () => {
 	};
 
 	useEffect(() => {
+		const checkForNewDay = () => {
+			const newDay = new Date().getDate();
+			if (currentDay !== newDay) {
+				setCurrentDay(newDay);
+			}
+		};
+
+		const intervalId = setInterval(checkForNewDay, 60 * 1000); // Check every minute
+
+		// Cleanup on unmount
+		return () => clearInterval(intervalId);
+	}, [currentDay]);
+
+	useEffect(() => {
 		// On component mount, initialize app data and setup countdown
 		initAppDataFromLSAndUpdateCountdown();
 
@@ -145,7 +167,7 @@ const BaseScreen = () => {
 				clearInterval(intervalRef.current);
 			}
 		};
-	}, [currentVersion]);
+	}, [currentVersion, currentDay]);
 
 	useEffect(() => {
 		// Whenever the prayer times data changes, update the next prayer details
@@ -237,12 +259,17 @@ const BaseScreen = () => {
 				style={styles.premium_top_bg}
 			/>
 			<SafeAreaView style={styles.container}>
-				<TopHeader is24h={is24h} onClick={toggle24hFormat} />
+				<TopHeader
+					onModalClick={showModal}
+					is24h={is24h}
+					on24hClick={toggle24hFormat}
+				/>
 				<PrayerBoard
 					todaysPrayerTimes={todaysPrayerTimes}
 					nextPrayerName={nextPrayerName}
 					is24h={is24h}
 					nextPrayerIsTomorrow={nextPrayerIsTomorrow}
+					currentDay={currentDay}
 				/>
 			</SafeAreaView>
 			{/* Big card */}
@@ -260,6 +287,7 @@ const BaseScreen = () => {
 					is24h={is24h}
 				/>
 			</View>
+			<SimpleModal isVisible={isModalVisible} onClose={closeModal} />
 		</View>
 	);
 };

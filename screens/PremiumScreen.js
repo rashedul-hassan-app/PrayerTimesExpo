@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Carousel from "react-native-reanimated-carousel";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 // import {
 // 	BellIcon,
 // 	MapPinIcon,

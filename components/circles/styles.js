@@ -109,4 +109,8 @@ export const styles = StyleSheet.create({
 	hide: {
 		display: "none",
 	},
+	fade: {
+		opacity: 0.5,
+		transition: "1s",
+	},
 });
